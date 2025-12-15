@@ -153,7 +153,7 @@ def analyze_with_ai(content):
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
             temperature=0.1
         )
         return json.loads(response.choices[0].message.content)
@@ -192,4 +192,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
