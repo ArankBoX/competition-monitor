@@ -114,50 +114,47 @@ def fetch_content(driver, url):
 
 def analyze_with_ai(content):
     if not API_KEY: return {"latest_title": "No Key", "is_important": False, "reason": "No API Key"}
+    
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+    
+    # --- 升级版提示词：加入了【思考过程】 ---
     prompt = f"""
-    请分析以下竞赛官网文本，找出【时间最新】的一条通知：
-
-    注意：
-    1.应该结合通知发布的时间进行判断，不能仅以通知的先后顺序进行判断，【时间最新】作为首要的输出条件
-    2.如果某条通知的上下行内有时间，请自行判断时间与通知的关联顺序  
-    例：网页内容中有这样一段内容：
-       “通知公告
-        2025年中国大学生机械工程创新创意大赛创意赛道-机械产品数字化设…
-        2025-04-02
-        2025年中国大学生机械创新创意大赛-比赛公告
-        2025-04-01
-        2025年机械产品数字化设计赛国赛决赛获奖通知
-        2025-08-27
-        2025年中国大学生机械工程创新创意大赛-机械产品数字化设计赛国赛…
-        2025-08-23”
-        其中，“2025-8-27”对应的“2025年机...决赛获奖通知”应作为最新消息而不是“2025-4-02”对应的“2025年中国...产品数字化设…”
-
-    【网页内容】
-    {content}
-
-    请严格按以下 JSON 格式返回（不要用 Markdown）：
+    你是专业的竞赛情报分析师。请仔细阅读以下从官网抓取的文本片段：
+    
+    【文本开始】
+    {content[:3000]}
+    【文本结束】
+    
+    你的任务是判断是否有【针对学生】的【新一届（2025年及以后）】正赛通知。
+    
+    请在通过 JSON 返回结果前，先进行逻辑推理：
+    1. 提取文本中出现的最新日期。
+    2. 分析通知的目标群体（是教师、学生还是社会人士？）。
+    3. 区分是“正式赛题/启动/规则”还是仅仅是“培训/名单/回顾”。
+    
+    请严格按以下 JSON 格式返回：
     {{
-        "latest_title": "这里填最新那条通知的完整标题",
+        "analysis": "这里简要写出你的分析过程（例如：'发现了2026年字样，但标题是教师培训，所以不是学生赛题'）",
+        "latest_title": "文本中最新那条通知的完整标题",
         "is_important": true/false, 
-        "reason": "一句话摘要"
+        "reason": "给用户的最终摘要"
     }}
-
-    判断标准：
-    - is_important 为 true 的条件：该条最新通知是关于【新一届】比赛的《赛题发布》、《详细规则》、《报名启动》或《大纲发布》。
-    - 如果最新通知只是“获奖名单”、“培训通知”或“往届回顾”，则 is_important 为 false。
-
+    
+    【判定标准】
+    - true: 必须同时满足 [新一届] + [学生] + [关键节点(报名/赛题/规则)]。
+    - false: 教师赛、单纯的讲座、获奖名单公示、往届回顾。
     """
-
+    
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{"role": "user", "content": prompt}], # 记得这里的逗号
             response_format={"type": "json_object"},
-            temperature=0.1
+            temperature=0.4  # <--- 调整为 0.4，增加一点点灵活性
         )
         return json.loads(response.choices[0].message.content)
-    except:
+    except Exception as e:
+        print(f"AI Error: {e}")
         return {"latest_title": "Error", "is_important": False, "reason": "AI Error"}
 
 
@@ -192,5 +189,6 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
