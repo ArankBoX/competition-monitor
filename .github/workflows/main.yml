@@ -31,7 +31,7 @@ jobs:
         # 把保险箱里的钥匙取出来，注入到环境变量
         MY_AI_KEY: ${{ secrets.MY_AI_KEY }}
         MY_SERVER_KEY: ${{ secrets.MY_SERVER_KEY }}
-      run: python monitor_system.py
+      run: python monitor_new_cloud.py
       
     - name: Commit and Push History (保存记忆)
       # 只有当 history.json 发生变化时才提交
