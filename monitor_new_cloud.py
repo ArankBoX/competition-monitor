@@ -37,7 +37,7 @@ COMPETITIONS = [
     },
     {
         "name": "机器人及人工智能大赛",
-        "url": "https://craic.yuntop.com/#/index"
+        "url": "https://craic.yuntop.com/#/index/list?type=Notice"
     },
     {
         "name": "睿抗机器人—数字孪生赛道",
@@ -189,4 +189,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
