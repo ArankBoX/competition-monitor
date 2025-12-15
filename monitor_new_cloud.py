@@ -116,12 +116,39 @@ def analyze_with_ai(content):
     if not API_KEY: return {"latest_title": "No Key", "is_important": False, "reason": "No API Key"}
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
     prompt = f"""
-    分析以下文本，找出【最新】的一条通知：
+    请分析以下竞赛官网文本，找出【时间最新】的一条通知：
+
+    注意：
+    1.应该结合通知发布的时间进行判断，不能仅以通知的先后顺序进行判断，【时间最新】作为首要的输出条件
+    2.如果某条通知的上下行内有时间，请自行判断时间与通知的关联顺序  
+    例：网页内容中有这样一段内容：
+       “通知公告
+        2025年中国大学生机械工程创新创意大赛创意赛道-机械产品数字化设…
+        2025-04-02
+        2025年中国大学生机械创新创意大赛-比赛公告
+        2025-04-01
+        2025年机械产品数字化设计赛国赛决赛获奖通知
+        2025-08-27
+        2025年中国大学生机械工程创新创意大赛-机械产品数字化设计赛国赛…
+        2025-08-23”
+        其中，“2025-8-27”对应的“2025年机...决赛获奖通知”应作为最新消息而不是“2025-4-02”对应的“2025年中国...产品数字化设…”
+
+    【网页内容】
     {content}
-    返回JSON：
-    {{ "latest_title": "标题", "is_important": true/false, "reason": "摘要" }}
-    important条件：新一届比赛的赛题、规则、报名。忽略培训、名单。
+
+    请严格按以下 JSON 格式返回（不要用 Markdown）：
+    {{
+        "latest_title": "这里填最新那条通知的完整标题",
+        "is_important": true/false, 
+        "reason": "一句话摘要"
+    }}
+
+    判断标准：
+    - is_important 为 true 的条件：该条最新通知是关于【新一届】比赛的《赛题发布》、《详细规则》、《报名启动》或《大纲发布》。
+    - 如果最新通知只是“获奖名单”、“培训通知”或“往届回顾”，则 is_important 为 false。
+
     """
+
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
