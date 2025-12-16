@@ -150,7 +150,7 @@ def analyze_with_ai(content):
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}], # 记得这里的逗号
             response_format={"type": "json_object"},
-            temperature=0.4  # <--- 调整为 0.4，增加一点点灵活性
+            temperature=1
         )
         return json.loads(response.choices[0].message.content)
     except Exception as e:
@@ -189,6 +189,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
