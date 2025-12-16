@@ -13,7 +13,7 @@ from openai import OpenAI
 # 在本地运行时，如果找不到环境变量，可以用 os.getenv 的第二个参数作为默认值(填你自己的Key方便本地测试)
 API_KEY = os.getenv("MY_AI_KEY")
 BASE_URL = "https://api.deepseek.com"
-MODEL_NAME = "deepseek-chat"
+MODEL_NAME = "deepseek-reasoner"
 SERVER_CHAN_KEY = os.getenv("MY_SERVER_KEY")
 
 HISTORY_FILE = "history.json"
@@ -189,6 +189,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
